@@ -182,11 +182,13 @@ public class GroovyServices implements TextDocumentService, WorkspaceService, La
 			return;
 		}
 		JsonObject settings = (JsonObject) params.getSettings();
-		this.updateClasspath(settings);
+		this.updateCompilationUnit(settings);
 	}
 
-	private void updateClasspath(JsonObject settings) {
+	private void updateCompilationUnit(JsonObject settings) {
+		// classpath
 		List<String> classpathList = new ArrayList<>();
+		String scriptBaseClass = "groovy.lang.Script";
 
 		if (settings.has("groovy") && settings.get("groovy").isJsonObject()) {
 			JsonObject groovy = settings.get("groovy").getAsJsonObject();
@@ -196,11 +198,15 @@ public class GroovyServices implements TextDocumentService, WorkspaceService, La
 					classpathList.add(element.getAsString());
 				});
 			}
+
+			if (groovy.has("scriptBaseClass") && groovy.get("scriptBaseClass").isJsonPrimitive()) {
+				scriptBaseClass = groovy.get("scriptBaseClass").getAsString();
+			}
 		}
 
-		if (!classpathList.equals(compilationUnitFactory.getAdditionalClasspathList())) {
+		if (!classpathList.equals(compilationUnitFactory.getAdditionalClasspathList()) || !scriptBaseClass.equals(compilationUnitFactory.getScriptBaseClass())) {
 			compilationUnitFactory.setAdditionalClasspathList(classpathList);
-
+			compilationUnitFactory.setScriptBaseClass(scriptBaseClass);
 			createOrUpdateCompilationUnit();
 			compile();
 			visitAST();

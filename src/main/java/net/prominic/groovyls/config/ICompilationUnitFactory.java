@@ -36,6 +36,10 @@ public interface ICompilationUnitFactory {
 
 	public void setAdditionalClasspathList(List<String> classpathList);
 
+	public void setScriptBaseClass(String scriptBaseClass);
+
+	public String getScriptBaseClass();
+
 	/**
 	 * Returns a compilation unit.
 	 */

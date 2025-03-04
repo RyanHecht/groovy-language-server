@@ -46,6 +46,7 @@ public class CompilationUnitFactory implements ICompilationUnitFactory {
 	private CompilerConfiguration config;
 	private GroovyClassLoader classLoader;
 	private List<String> additionalClasspathList;
+	private String scriptBaseClass = "groovy.lang.Script";
 
 	public CompilationUnitFactory() {
 	}
@@ -57,6 +58,15 @@ public class CompilationUnitFactory implements ICompilationUnitFactory {
 	public void setAdditionalClasspathList(List<String> additionalClasspathList) {
 		this.additionalClasspathList = additionalClasspathList;
 		invalidateCompilationUnit();
+	}
+
+	public void setScriptBaseClass(String scriptBaseClass) {
+		this.scriptBaseClass = scriptBaseClass;
+		invalidateCompilationUnit();
+	}
+
+	public String getScriptBaseClass() {
+		return scriptBaseClass;
 	}
 
 	public void invalidateCompilationUnit() {
@@ -114,7 +124,6 @@ public class CompilationUnitFactory implements ICompilationUnitFactory {
 
 	protected CompilerConfiguration getConfiguration() {
 		CompilerConfiguration config = new CompilerConfiguration();
-
 		Map<String, Boolean> optimizationOptions = new HashMap<>();
 		optimizationOptions.put(CompilerConfiguration.GROOVYDOC, true);
 		config.setOptimizationOptions(optimizationOptions);
@@ -122,7 +131,7 @@ public class CompilationUnitFactory implements ICompilationUnitFactory {
 		List<String> classpathList = new ArrayList<>();
 		getClasspathList(classpathList);
 		config.setClasspathList(classpathList);
-
+		config.setScriptBaseClass(scriptBaseClass);
 		return config;
 	}
 
