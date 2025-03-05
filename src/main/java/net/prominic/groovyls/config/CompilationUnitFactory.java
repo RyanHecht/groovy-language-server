@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.control.ParserPlugin;
+import org.codehaus.groovy.control.ParserPluginFactory;
 import org.codehaus.groovy.control.SourceUnit;
 
 import groovy.lang.GroovyClassLoader;
@@ -81,7 +83,15 @@ public class CompilationUnitFactory implements ICompilationUnitFactory {
 		}
 
 		if (classLoader == null) {
-			classLoader = new GroovyClassLoader(ClassLoader.getSystemClassLoader().getParent(), config, true);
+			ClassLoader parentClassLoader = ClassLoader.getSystemClassLoader().getParent();
+			if (!scriptBaseClass.equals("groovy.lang.Script")) {
+				try {
+					parentClassLoader = Class.forName(scriptBaseClass).getClassLoader();
+				} catch (ClassNotFoundException e) {
+					System.out.println("Error loading classloader for " + scriptBaseClass);
+				}
+			}
+			classLoader = new GroovyClassLoader(parentClassLoader, config, true);
 		}
 
 		Set<URI> changedUris = fileContentsTracker.getChangedURIs();
@@ -132,6 +142,15 @@ public class CompilationUnitFactory implements ICompilationUnitFactory {
 		getClasspathList(classpathList);
 		config.setClasspathList(classpathList);
 		config.setScriptBaseClass(scriptBaseClass);
+		if (!scriptBaseClass.equals("groovy.lang.Script")) {
+			config.setPluginFactory(new ParserPluginFactory() {
+			@Override
+			public ParserPlugin createParserPlugin() {
+				return new PackageInjectingParserPlugin();
+			}
+		});
+		}
+		
 		return config;
 	}
 

@@ -77,6 +77,14 @@
           "items": {
             "type": "string"
           }
+        },
+        "groovy.scriptBaseClass": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "description": "Specifies the CompilerConfiguration's base class to use for scripts"
         }
       }
     }
